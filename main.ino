@@ -12,60 +12,59 @@
  * 
  */
  
-#include <SoftwareSerial.h> // Software Serial to simulate serial connection for the GPS Shield
-#include <Servo.h>          // Servo motor control library
-#include <TinyGPS.h>        // TinyGPS library to communicate with GPS Shield
+#include <Servo.h>           // Servo motor control library
+#include <TinyGPS.h>         // TinyGPS library to communicate with GPS Shield
 
-int MotorLeftA = 24;    //  Propeller Motor A uses pins 24 and 25
-int MotorLeftB = 25;
-int MotorRightA = 27;   //  Propeller Motor B uses pins 26 and 27 
-int MotorRightB = 26;
+int MotorLeftA = 24;         //  Propeller Motor A uses pins 24 and 25
+int MotorLeftB = 25;         //
+int MotorRightA = 27;        //  Propeller Motor B uses pins 26 and 27 
+int MotorRightB = 26;        //
 
 int ContainerASpool_A = 50;  // Container A is controlled by a continuous servo motor, using pins 50 and 51
-int ContainerASpool_B = 51;
+int ContainerASpool_B = 51;  //
 int ContainerBSpool_A = 52;  // Container B is controlled by a continuous servo motor, using pins 52 and 53
-int ContainerBSpool_B = 53;
+int ContainerBSpool_B = 53;  //
 
-Servo ContainerA;
-int ContainerA_pos;
-Servo ContainerB;
-int ContainerB_pos;
+Servo ContainerA;       // Creating an object of the Servo class for the bicycle brake controlling Container A
+int ContainerA_pos;     // This integer dictates the servo's angle
+Servo ContainerB;       // Creating an object of the Servo class for the bicycle brake controlling Container B
+int ContainerB_pos;     // This integer dictates the servo's angle
 
-TinyGPS gps;
+TinyGPS gps;            // Creates an object of the TinyGPS class
 
-String data;
-String Time;
+String data;            // This string is used to read data that the Bluetooth module received from the Android application
 
-float Lat_Global;
-float Long_Global;
+String Time;            // This is a global variable to store the timestamp of water collection
+float Lat_Global;       // Global variable to store the latitude
+float Long_Global;      // Global variable to store the longitude
 
 void setup() {
-  Serial.begin(115200);
-  Serial2.begin(4800); //GPS pin 2 to 17, 3 to 16
-  Serial1.begin(9600); //Bluetooth Rx to 18, Tx to 19
-  pinMode(MotorLeftA, OUTPUT);
-  pinMode(MotorLeftB, OUTPUT);
-  pinMode(MotorRightA, OUTPUT);
-  pinMode(MotorRightB, OUTPUT);
-  pinMode(ContainerASpool_A, OUTPUT);
-  pinMode(ContainerASpool_B, OUTPUT);
-  pinMode(ContainerBSpool_A, OUTPUT);
-  pinMode(ContainerBSpool_B, OUTPUT);
+  Serial.begin(115200); // Begins serial monitor. Has to be this fast to pick up readings from the GPS
+  Serial2.begin(4800); // GPS pin 2 (from GPS shield) to 17, 3 (from GPS shield) to 16. Hardware serial communication
+  Serial1.begin(9600); // Bluetooth Rx to 18, Tx to 19. Hardware serial communication
+  pinMode(MotorLeftA, OUTPUT);             //
+  pinMode(MotorLeftB, OUTPUT);             //
+  pinMode(MotorRightA, OUTPUT);            //
+  pinMode(MotorRightB, OUTPUT);            // Setting all motor pins as digital output pins
+  pinMode(ContainerASpool_A, OUTPUT);      //
+  pinMode(ContainerASpool_B, OUTPUT);      //
+  pinMode(ContainerBSpool_A, OUTPUT);      //
+  pinMode(ContainerBSpool_B, OUTPUT);      //
   
-  ContainerA.attach(23);
-  ContainerA.write(0);
-  ContainerB.attach(22);
-  ContainerB.write(0);
+  ContainerA.attach(23);   // Container A's bicycle brake servo's singal wire to pin 23
+  ContainerA.write(0);     // Set the position to 0 degrees
+  ContainerB.attach(22);   // Container B's bicycle brake servo's signal wire to pin 22
+  ContainerB.write(0);     // Set the position to 0 degrees
 }
 void loop() {
-  while (Serial1.available()) {
-    delay(3);
-    char c = Serial1.read();
-    data += c;
+  while (Serial1.available()) { // If the Bluetooth serial is available
+    delay(3);                   //
+    char c = Serial1.read();    // Reads the data in the data stream character by character
+    data += c;                  // Then appends it to the "data" variable
   }
-  if (data == "forward") {
-    Serial1.write("moving");
-    move_forward();
+  if (data == "forward") {    //  
+    Serial1.write("moving");  // Moves Imp Bot forward. Sends the text "moving" back to the Android application as confirmation
+    move_forward();           // Calls the move_forward function
   }
   else if (data == "backwards") {
     Serial1.write("moving");
